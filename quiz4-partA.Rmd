@@ -1,0 +1,167 @@
+---
+title: "QUIZ4-STA2010"
+author: "Ivy Kemunto"
+date: "2023-11-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Generate 1000 random samples from a bivariate normal distribution. [7 Marks]
+## - Set the mean vector to be [1 2] and the covariance matrix to be [2 0.5 0.5 1].
+```{r}
+# Load necessary libraries
+library(MASS)
+
+# Set parameters
+mean_vector <- c(1, 2)
+covariance_matrix <- matrix(c(2, 0.5, 0.5, 1), nrow = 2)
+
+```
+
+## - Plot the generated samples using a scatter plot, labeling the axes appropriately.
+```{r}
+# Plot the generated samples
+plot(random_samples, main = "Scatter Plot of Bivariate Normal Samples",
+     xlab = "X-axis", ylab = "Y-axis")
+
+# Calculate the regression line
+regression_line <- lm(random_samples[, 2] ~ random_samples[, 1])
+abline(regression_line, col = "red", lty = 2)  # Adding a regression line
+```
+- **Positive Slope:** The positive slope of the regression line suggests a positive linear relationship between the two variables, X and Y. Specifically, as the X variable increases, the Y variable tends to increase. This aligns with the expected behavior of a bivariate normal distribution with a positive covariance.
+
+- **Strength of the Relationship:** In the scatter plot, the positive slope is weak. This indicates a weak positive correlation between X and Y. The weak slope suggests that while there is a positive trend, the rate of increase in Y for a unit increase in X is not extremely rapid. Points on the scatter plot exhibit a discernible upward trend, but the relationship is not as strong as it would be with a steeper slope.
+
+- **Interpretation of the Scatter Plot:** The scatter plot visually represents the bivariate normal distribution. Points on the plot cluster around the regression line, indicating the central tendency of the data. The weak positive slope reinforces the notion that, on average, as X increases, Y increases.
+
+- **Covariance Matrix Influence:** The specified covariance matrix [2 0.5 0.5 1] contributes to the pattern observed in the scatter plot. The covariance of 0.5 between X and Y indicates a positive correlation, and the variances (2 for X and 1 for Y) influence the spread of the data along each axis.
+
+Further Analysis to test on how strong or weak the correlation is 
+```{r}
+# Calculate the correlation coefficient between X and Y
+correlation_coefficient <- cor(random_samples[, 1], random_samples[, 2])
+
+# Print the correlation coefficient
+cat("\nCorrelation Coefficient between X and Y:", correlation_coefficient)
+
+# Interpret the correlation coefficient
+if (abs(correlation_coefficient) > 0.8) {
+  cat("The correlation is strong.")
+} else if (abs(correlation_coefficient) > 0.5) {
+  cat("The correlation is moderate.")
+} else {
+  cat(" The correlation is weak.")
+}
+```
+This means that the strength of the linear relationship between the X and Y variables is considered weak. The absolute value of the correlation coefficient, which is less than 0.5 in this case, suggests a relatively low degree of linear association between the two variables.
+
+# 2. Calculate and Plot Densities. [7 Marks]
+## - Create a grid for a bivariate normal distribution.
+## - Calculate the bivariate normal density for each point in the grid.
+## - Plot the bivariate normal density using a contour plot, labeling the axes appropriately.
+```{r}
+# Create a grid
+x <- seq(-2, 4, length.out = 100)
+y <- seq(-1, 5, length.out = 100)
+grid <- expand.grid(X = x, Y = y)
+grid
+# Calculate the bivariate normal density for each point in the grid
+grid$density <- dmvnorm(grid, mean = mean_vector, sigma = covariance_matrix)
+
+# Convert the grid to a matrix for filled.contour
+density_matrix <- matrix(grid$density, nrow = length(x), byrow = TRUE)
+
+# Plot the bivariate normal density using filled.contour
+filled.contour(x, y, density_matrix,
+               main = "Filled Contour Plot of Bivariate Normal Density",
+               xlab = "X-axis", ylab = "Y-axis",
+               color.palette = terrain.colors, plot.title = element_text(hjust = 0.5))
+```
+-**Density Gradient**:Darker regions on the contour plot correspond to higher probability density, indicating areas where the bivariate normal distribution is more concentrated.Lighter regions represent lower probability density, suggesting areas with less concentration.
+
+-**Shape of Contour Lines**:The contour lines likely form ellipses or ovals, reflecting the shape of the bivariate normal distribution. The orientation and elongation of the ellipses provide insights into the correlation between the two variables.
+
+-**Central Tendency**:Areas enclosed by higher density contours represent the central tendency of the distribution, where data points are more likely to be concentrated.
+
+-**Spread and Dispersion**:The spacing between contour lines reflects the spread and dispersion of the distribution. Closer contours indicate higher density regions, while wider gaps suggest lower density areas.
+
+-**Overall Structure**:The contour plot provides a visual representation of the joint probability distribution of the bivariate normal variables. It helps identify patterns and trends in the data.
+
+## - Choose a region of interest (e.g., X < 2 and Y < 3) and calculate the probability.
+## - Print the calculated probability.
+
+# 3. Calculate Probabilities. [5 Marks]
+```{r}
+# Choose a region of interest
+region_of_interest <- subset(grid, X < 2 & Y < 3)
+
+# Calculate the probability for the chosen region
+probability <- sum(region_of_interest$density)
+
+# Print the calculated probability
+cat("Probability in the region of interest:", probability, "\n")
+
+```
+Visualising the region of interest
+```{r}
+# Plot the bivariate normal density using filled.contour
+filled.contour(x, y, density_matrix,
+               main = "Filled Contour Plot with Region of Interest",
+               xlab = "X-axis", ylab = "Y-axis",
+               color.palette = terrain.colors, plot.title = element_text(hjust = 0.5))
+
+# Add a rectangle to highlight the region of interest
+rect(-2, -1, 2, 3, col = rgb(1, 0, 0, 0.3), border = 1)
+
+```
+**Probability Calculation:**
+
+The chosen region of interest is defined by the condition X<2 and Y<3.
+The probability within this region is calculated by summing up the density values for all points within the region.
+In this case, the calculated probability is 175.062.
+
+**Visualization:**
+The filled contour plot provides a visual representation of the bivariate normal density across the XY-plane.
+The highlighted region of interest is marked by a semi-transparent red rectangle on the plot.
+
+**Interpretation of Probability:**
+The calculated probability (175.062) represents the likelihood of observing values within the specified region under the bivariate normal distribution.
+In the context of this analysis, it signifies the relative concentration of data points within the defined region compared to the entire distribution.
+
+**Visual Interpretation:**
+The highlighted rectangle on the filled contour plot visually emphasizes the chosen region of interest, helping to identify the area for which the probability is calculated.
+
+# 4. Test for Multivariate Normality: [6 Marks]
+## - Take a sample of at least 100 observations and two variables.
+## - Test if the dataset follows a multivariate normal distribution.
+## - Print and interpret the test results.
+```{r}
+# Generate a sample of at least 100 observations and two variables
+set.seed(456)
+sample_data <- rmvnorm(n = 100, mean = mean_vector, sigma = covariance_matrix)
+
+# Test for multivariate normality
+shapiro_test <- shapiro.test(sample_data)
+
+# Print and interpret the test results
+cat("Shapiro-Wilk test for multivariate normality:\n")
+print(shapiro_test)
+if (shapiro_test$p.value > 0.05) {
+  cat("The data follows a multivariate normal distribution.\n")
+} else {
+  cat("The data does not follow a multivariate normal distribution.\n")
+}
+
+```
+**W statistic:** The W statistic is a test statistic from the Shapiro-Wilk test. In this case, it is 0.97796.
+
+**p-value:** The p-value associated with the test is 0.003081.
+
+**Now, based on the p-value:**
+
+**Interpretation:** The null hypothesis of the Shapiro-Wilk test is that the data follows a multivariate normal distribution. Since the p-value (0.003081) is less than the typical significance level of 0.05, you would reject the null hypothesis. Therefore, you have evidence to suggest that the data does not follow a multivariate normal distribution.
+
+
